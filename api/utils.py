@@ -16,6 +16,9 @@ def send_code_to_api(complaint):
         )
         # Extract and return the message content from the AI response
         return response["choices"][0]["message"]["content"]
-    except Exception as e:
-        # In case of an error, log the exception and return a default error message
-        return f"Error: {str(e)}"
+    except openai.error.APIError as e:
+        raise ValueError(f"OpenAI API returned an API Error: {e}")
+    except openap.error.APIConnectionError as e:
+        raise ValueError(f"Failed to connect to OpenAI API: {e}")
+    except openai.error.RateLimitError as e:
+        raise ValueError(f"OpenAI API request exceeded rate limit: {e}")

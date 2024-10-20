@@ -42,3 +42,4 @@ class UserView(views.APIView):
 
 class TokenView(ObtainAuthToken):
     serializer_class = TokenSerializer
+    
