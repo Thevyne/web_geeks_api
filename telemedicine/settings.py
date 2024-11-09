@@ -20,7 +20,11 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-APIKEY = os.getenv("OPENAI_APIKEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+VULTR_API_KEY = os.getenv("VULTR_API_KEY")
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 
 
@@ -138,3 +142,11 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ojugbelidivine.i@gmail.com'
+EMAIL_HOST_PASSWORD = 'Yeast023d@Y'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

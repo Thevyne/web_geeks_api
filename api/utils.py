@@ -1,24 +1,45 @@
-import openai
+from groq import Groq
 from django.conf import settings
 
-# Set the OpenAI API key from your Django settings
-openai.api_key = settings.APIKEY
 
-def send_code_to_api(complaint):
+def send_code_to_groq(_input):
+    client = Groq(api_key=settings.GROQ_API_KEY)
     try:
-        # Create the Chat Completion with the old version of the API
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # You can use other models like "gpt-3.5-turbo" if available
+        # Create the completion request
+        completion = client.chat.completions.create(
+            model="llama3-70b-8192",
             messages=[
-                {"role": "system", "content": "You are a helpful and professional medical assistant."},
-                {"role": "user", "content": f"My complaint is: {complaint}"},
+                {
+                    "role": "system",
+                    "content": "Give medical advice to patients."
+                },
+                {
+                    "role": "user",
+                    "content": _input
+                }
             ],
+            temperature=1,
+            max_tokens=1024,
+            top_p=1,
+            stream=True,
+            stop=None,
         )
-        # Extract and return the message content from the AI response
-        return response["choices"][0]["message"]["content"]
-    except openai.error.APIError as e:
-        raise ValueError(f"OpenAI API returned an API Error: {e}")
-    except openap.error.APIConnectionError as e:
-        raise ValueError(f"Failed to connect to OpenAI API: {e}")
-    except openai.error.RateLimitError as e:
-        raise ValueError(f"OpenAI API request exceeded rate limit: {e}")
+
+        # Initialize an empty response content string
+        response_content = ""
+
+        # Loop through each chunk to capture content
+        for chunk in completion:
+            print("Chunk received:", chunk)  # Print each chunk to inspect
+            # Assuming chunk contains 'delta' with 'content', adjust if needed
+            if hasattr(chunk, 'choices') and chunk.choices[0].delta.content:
+                response_content += chunk.choices[0].delta.content
+
+        # Return the assembled content
+        if response_content:
+            return {"output": response_content}
+        else:
+            return {"error": "Unexpected response structure, no content found."}
+       
+    except Exception as e:
+        return {"error": str(e)}

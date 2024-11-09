@@ -3,7 +3,9 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from api.models import AiDoctor
-from api.utils import send_code_to_api
+from api.utils import send_code_to_groq
+
+
 
 class AiResponseSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,7 +17,7 @@ class AiResponseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         ad = AiDoctor(**validated_data)
-        _output = send_code_to_api(validated_data["_input"])
+        _output = send_code_to_groq(validated_data["_input"])
         ad._output = _output
         ad.save()
         return ad 
@@ -52,3 +54,11 @@ class TokenSerializer(serializers.Serializer):
 
         attrs["user"] = user
         return attrs
+
+# Serializer for the password reset request
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+# Serializer for the password reset confirmation
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    new_password = serializers.CharField(min_length=8, write_only=True)
